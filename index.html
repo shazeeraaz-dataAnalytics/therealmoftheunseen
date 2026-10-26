@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rolle Ghost Walk: Echoes of the Léman & Langsuir</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@300;400;500;700&family=Nosifer&display=swap" rel="stylesheet">
+  <!-- QRCode.js for QR code generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --blood: #880909;
+      --blood-bright: #bc1313;
+      --blood-dark: #4a0303;
+      --parchment-light: #ebd6be;
+      --parchment-base: #d2b38e;
+      --parchment-aged: #b38b62;
+      --parchment-shadow: #6b432a;
+      --burnt-edge: #2e170c;
+      --ink-black: #1a0f0a;
+      --ink-charcoal: #2c1a12;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #24120a;
+      color: var(--ink-black);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      /* Realistic blood-soaked parchment background directly inspired by reference photo */
+      background-image: 
+        /* Realistic deep blood mist and splatter seepage bleeding down from the top edge */
+        radial-gradient(ellipse 90% 120px at 50% 0%, rgba(138, 9, 9, 0.96) 0%, rgba(100, 6, 6, 0.88) 45%, rgba(65, 4, 4, 0.45) 80%, transparent 100%),
+        radial-gradient(ellipse 45% 75px at 18% 0%, rgba(180, 16, 16, 0.9) 0%, rgba(110, 8, 8, 0.5) 65%, transparent 100%),
+        radial-gradient(ellipse 55% 85px at 82% 0%, rgba(165, 12, 12, 0.92) 0%, rgba(95, 6, 6, 0.55) 70%, transparent 100%),
+        /* Fine organic blood mist spray dots */
+        radial-gradient(circle 2px at 15% 95px, #750606 100%, transparent),
+        radial-gradient(circle 1.5px at 19% 115px, #8c0909 100%, transparent),
+        radial-gradient(circle 2.5px at 24% 85px, #600404 100%, transparent),
+        radial-gradient(circle 1.5px at 32% 102px, #820707 100%, transparent),
+        radial-gradient(circle 3px at 48% 112px, #580303 100%, transparent),
+        radial-gradient(circle 1.5px at 52% 128px, #820707 100%, transparent),
+        radial-gradient(circle 2px at 67% 92px, #750606 100%, transparent),
+        radial-gradient(circle 1.5px at 74% 110px, #8c0909 100%, transparent),
+        radial-gradient(circle 2.5px at 85% 105px, #650505 100%, transparent),
+        radial-gradient(circle 1px at 89% 122px, #8f0808 100%, transparent),
+        /* Aged parchment body vignette & crinkled antique paper fibers */
+        radial-gradient(ellipse at 50% 30%, rgba(245, 230, 210, 0.35) 0%, transparent 70%),
+        radial-gradient(ellipse at 50% 90%, rgba(90, 50, 25, 0.5) 0%, rgba(28, 12, 6, 0.95) 100%),
+        linear-gradient(180deg, rgba(80, 5, 5, 0.75) 0%, rgba(55, 6, 6, 0.3) 110px, #c89e72 200px, #d7b286 45%, #c5996c 75%, #5a3118 100%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperFiber'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23f4deb6' surfaceScale='2.2'%3E%3CfeDistantLight azimuth='65' elevation='50'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperFiber)' opacity='0.22'/%3E%3C/svg%3E");
+      background-attachment: fixed;
+      background-size: cover;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    .font-creepy {
+      font-family: 'Nosifer', cursive;
+    }
+
+    /* Eerie fog & damp soil mist */
+    .fog-layer {
+      position: fixed;
+      top: 0; left: 0; width: 200%; height: 100%;
+      background: radial-gradient(ellipse at 50% 50%, rgba(136, 15, 15, 0.04) 0%, rgba(70, 36, 20, 0.09) 50%, transparent 80%);
+      pointer-events: none;
+      animation: driftFog 45s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+    @keyframes driftFog {
+      0% { transform: translateX(0%) translateY(0%); }
+      50% { transform: translateX(-15%) translateY(-3%); }
+      100% { transform: translateX(0%) translateY(0%); }
+    }
+
+    /* Aged Parchment Card Containers with Stained Creases & Burnt Edges */
+    .soil-card {
+      background: 
+        radial-gradient(circle at 10% 15%, rgba(255, 248, 238, 0.55) 0%, transparent 40%),
+        radial-gradient(circle at 85% 90%, rgba(135, 82, 45, 0.35) 0%, transparent 55%),
+        linear-gradient(172deg, rgba(238, 221, 198, 0.96) 0%, rgba(220, 195, 163, 0.97) 50%, rgba(198, 166, 130, 0.98) 100%);
+      border: 1.5px solid #8e6242;
+      box-shadow: 
+        inset 0 1px 1px rgba(255, 255, 255, 0.6),
+        inset 0 -2px 14px rgba(74, 39, 21, 0.4),
+        0 14px 34px -8px rgba(22, 10, 5, 0.85),
+        0 0 18px rgba(136, 9, 9, 0.2);
+      position: relative;
+    }
+
+    /* Weathered Edge Burnt Smear Overlay */
+    .soil-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 0 25px rgba(95, 48, 23, 0.4);
+      z-index: 1;
+    }
+
+    /* Organic, subtle dried blood stain accents on card corners */
+    .blood-splatter-tr {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 110px;
+      height: 110px;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      background-position: top right;
+      opacity: 0.75;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M140,0 L140,65 C130,55 122,68 114,56 C106,44 110,28 92,30 C80,32 72,18 84,10 C90,6 112,8 120,0 Z' fill='%23680808' opacity='0.85'/%3E%3Ccircle cx='95' cy='50' r='3.5' fill='%237a0909'/%3E%3Ccircle cx='82' cy='36' r='2.5' fill='%239e0f0f'/%3E%3Ccircle cx='70' cy='22' r='4' fill='%23600606'/%3E%3Ccircle cx='58' cy='28' r='1.8' fill='%23880b0b'/%3E%3Ccircle cx='105' cy='68' r='3' fill='%236f0808'/%3E%3Ccircle cx='74' cy='46' r='1.6' fill='%23a11010'/%3E%3C/svg%3E");
+      z-index: 2;
+    }
+    .blood-splatter-bl {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 100px;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      background-position: bottom left;
+      opacity: 0.7;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,140 L0,80 C10,86 20,74 26,88 C34,102 24,115 40,112 C52,110 60,124 50,132 C44,136 18,134 12,140 Z' fill='%235f0707' opacity='0.85'/%3E%3Ccircle cx='40' cy='92' r='2.8' fill='%23780a0a'/%3E%3Ccircle cx='52' cy='104' r='3.2' fill='%23920f0f'/%3E%3Ccircle cx='64' cy='122' r='2' fill='%235f0707'/%3E%3Ccircle cx='26' cy='74' r='1.8' fill='%23a41111'/%3E%3C/svg%3E");
+      z-index: 2;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #442415;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8b3c2a;
+      border-radius: 4px;
+    }
+    .glow-blood {
+      box-shadow: 0 0 30px 5px rgba(185, 28, 28, 0.7), inset 0 0 14px rgba(127, 29, 29, 0.5);
+    }
+    .radar-pulse {
+      animation: radarPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes radarPing {
+      75%, 100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen overflow-x-hidden flex flex-col justify-between">
+
+  <!-- Ambient Fog Overlay -->
+  <div class="fog-layer"></div>
+
+  <!-- Red Lantern Night Vision Flashlight Overlay -->
+  <div id="redLanternMode" class="fixed inset-0 bg-red-950/95 z-50 pointer-events-none opacity-0 transition-opacity duration-300 flex flex-col items-center justify-between p-6">
+    <div class="w-full flex justify-between items-center text-red-200">
+      <span class="font-cinzel tracking-wider flex items-center gap-2 text-sm">
+        <i data-lucide="flame" class="w-5 h-5 text-red-400"></i> RED LANTERN TRAIL ILLUMINATION
+      </span>
+      <button onclick="toggleRedLantern()" class="pointer-events-auto px-4 py-2 bg-red-900 border border-red-700 text-white rounded-full text-xs uppercase font-bold tracking-widest active:scale-95">
+        Close (Return)
+      </button>
+    </div>
+    <div class="text-center space-y-3">
+      <div class="w-28 h-28 mx-auto rounded-full bg-red-600/30 flex items-center justify-center border-2 border-red-500 shadow-[0_0_60px_rgba(239,68,68,0.8)] animate-pulse">
+        <i data-lucide="eye" class="w-14 h-14 text-red-300"></i>
+      </div>
+      <p class="font-cinzel text-xl text-red-100 font-bold">Eyes Adjusted to the Dark</p>
+      <p class="text-sm text-red-300 max-w-xs">Your natural night-vision is preserved. Use this safe red glow to navigate uneven cobblestones and tree roots along the shore.</p>
+    </div>
+    <div class="text-xs text-red-400 tracking-widest pb-4">TAP CLOSE IN TOP RIGHT TO EXIT</div>
+  </div>
+
+  <!-- Main App Shell -->
+  <div class="relative z-10 w-full max-w-xl mx-auto flex flex-col min-h-screen pb-28">
+
+    <!-- Top Navigation Header (Dramatic Theatrical Gothic Header) -->
+    <header class="pt-4 pb-3 px-4 border-b-2 border-[#5c2415] backdrop-blur-md sticky top-0 z-40 bg-gradient-to-b from-[#1c0b05]/98 via-[#2a1208]/95 to-[#1c0b05]/98 shadow-[0_8px_30px_rgba(0,0,0,0.9)] relative overflow-hidden">
+      <!-- Subtle internal ember glow effect -->
+      <div class="absolute inset-x-0 -top-10 h-16 bg-gradient-to-b from-red-600/30 to-transparent pointer-events-none blur-xl"></div>
+      
+      <!-- Topmost Row: Crest, Dramatic Title, and Subtitle -->
+      <div class="flex items-center justify-between gap-3 relative z-10">
+        <div class="flex items-center gap-3">
+          <!-- Ornate Pulsing Skull Sigil -->
+          <div class="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-[#961212] via-[#5c0808] to-[#220404] border-2 border-red-500/80 shadow-[0_0_25px_rgba(220,38,38,0.85)] flex-shrink-0 group">
+            <i data-lucide="skull" class="w-7 h-7 text-amber-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] transition-transform group-hover:scale-110"></i>
+            <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+              <span class="radar-pulse absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90"></span>
+              <span class="relative inline-flex rounded-full h-4 w-4 bg-red-600 border border-amber-200"></span>
+            </span>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-cinzel font-black text-lg md:text-xl tracking-[0.18em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#fff3e3] via-[#ffcbb0] to-[#e69372] drop-shadow-[0_2px_12px_rgba(200,30,30,0.7)] leading-tight whitespace-nowrap">
+                ROLLE GHOST WALK
+              </h1>
+            </div>
+            <p class="text-[11px] md:text-xs font-serif italic text-amber-200/90 tracking-wide flex items-center gap-1.5 mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+              Echoes of Lac Léman & Spectral Malay Lore
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Controls Bar -->
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <!-- Language Switcher Button (EN / ID) -->
+          <button onclick="toggleLanguage()" id="langToggleBtn" title="Ganti Bahasa / Switch Language" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-b from-[#3d1c10] to-[#261007] border border-[#783e25] text-amber-200 hover:text-white hover:border-red-500 active:scale-95 transition-all shadow-lg font-mono text-xs font-black flex items-center gap-1">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-red-400"></i>
+            <span id="currentLangLabel">ID</span>
+          </button>
+          <!-- Trail Map Toggle Button -->
+          <button onclick="toggleMapModal()" title="Ghost Walk Trail Map" class="p-2 rounded-xl bg-gradient-to-b from-[#3d1c10] to-[#261007] border border-[#783e25] text-amber-200 hover:text-white hover:border-red-500 active:scale-95 transition-all shadow-lg">
+            <i data-lucide="map" class="w-4 h-4"></i>
+          </button>
+          <!-- Night Lantern Button -->
+          <button onclick="toggleRedLantern()" title="Night Vision Red Light" class="p-2 rounded-xl bg-gradient-to-b from-[#5c0e0e] to-[#2e0505] border border-red-600 text-red-200 hover:text-white active:scale-95 transition-all shadow-[0_0_12px_rgba(220,38,38,0.5)]">
+            <i data-lucide="lamp" class="w-4 h-4"></i>
+          </button>
+          <!-- QR Code Share Button -->
+          <button onclick="openQRModal()" title="Share QR Codes" class="p-2 rounded-xl bg-gradient-to-b from-[#3d1c10] to-[#261007] border border-[#783e25] text-amber-200 hover:text-white hover:border-red-500 active:scale-95 transition-all shadow-lg">
+            <i data-lucide="qr-code" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Headphone & Spoken Voice Reminder Ribbon (Parchment Ribbon) -->
+    <div class="mx-4 mt-3 p-2.5 rounded-xl bg-gradient-to-r from-[#e7d0b3] via-[#dfc29f] to-[#ceab81] border border-[#7a482b] flex items-center justify-between text-xs text-[#2a170e] shadow-lg">
+      <div class="flex items-center gap-2">
+        <i data-lucide="headphones" class="w-4 h-4 text-red-800 animate-bounce"></i>
+        <span class="text-[11px] font-medium text-[#2d180f]" id="headphoneNoticeText">Ambience plays first, followed by <strong>Spoken Narration</strong></span>
+      </div>
+      <button onclick="toggleVoiceNarrationSetting()" id="voiceToggleBtn" class="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-red-950 text-red-200 border border-red-700 shadow-md flex items-center gap-1 active:scale-95 transition-all">
+        <i data-lucide="volume-2" class="w-3 h-3 text-red-400"></i>
+        <span id="voiceStatusPill">Voice: ON</span>
+      </button>
+    </div>
+
+    <!-- Active Stop Card with Weathered Parchment & Blood Droplet Accents -->
+    <main class="p-4 space-y-4">
+      
+      <!-- Stop Status & Title Header -->
+      <section class="p-5 rounded-2xl soil-card shadow-2xl relative overflow-hidden">
+        <div class="blood-splatter-tr"></div>
+        <div class="blood-splatter-bl"></div>
+
+        <div class="flex items-center justify-between text-xs mb-2 relative z-10">
+          <span id="stationNumberTag" class="px-2.5 py-1 rounded-md bg-gradient-to-r from-red-900 to-red-950 border border-red-700 text-amber-100 font-mono font-bold tracking-wider uppercase shadow-md">
+            STOP 0 OF 5
+          </span>
+          <button onclick="openStopInGoogleMaps()" class="text-[#3b2015] hover:text-red-800 transition-colors flex items-center gap-1 group text-xs bg-[#e2caa8]/80 px-2 py-1 rounded-md border border-[#9b6e4a] shadow-sm font-semibold">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-700 group-hover:scale-110 transition-transform"></i>
+            <span id="stationLocationTag" class="text-[#2b160e]">Chemin de Plein-Air</span>
+            <i data-lucide="external-link" class="w-3 h-3 text-[#5c3522] ml-0.5"></i>
+          </button>
+        </div>
+
+        <h2 id="stopTitle" class="font-cinzel text-xl md:text-2xl font-black text-[#1c0f0a] leading-tight mb-1 relative z-10 drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]">
+          The Boundary Crossing
+        </h2>
+        <p id="stopSubtitle" class="text-xs md:text-sm font-bold text-red-900 flex items-center gap-1.5 relative z-10">
+          <i data-lucide="flame" class="w-3.5 h-3.5 text-red-700"></i> Crossroads of Restless Souls & Semangat Hutan
+        </p>
+
+        <!-- Audio Visualizer Wave Canvas & Narration Status Indicator (Inked Frame) -->
+        <div class="mt-4 relative rounded-xl bg-[#201009] border border-[#6d3e26] p-2 overflow-hidden shadow-inner z-10">
+          <canvas id="visualizerCanvas" class="w-full h-16 rounded-lg block"></canvas>
+          <div id="synthStatusBadge" class="absolute bottom-2 right-3 text-[10px] font-mono text-amber-200/90 uppercase tracking-widest flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span id="audioLiveStatusLabel">Acoustic Horror Engine Standby</span>
+          </div>
+        </div>
+
+        <!-- Spoken Voice Countdown / Status Strip -->
+        <div id="narrationLiveBanner" class="mt-2.5 px-3 py-1.5 rounded-lg bg-[#e2c7a7] border border-[#8f5a38] flex items-center justify-between text-[11px] relative z-10 transition-all shadow-inner">
+          <div class="flex items-center gap-2 text-[#2a170e] font-medium truncate">
+            <i id="narratorIcon" data-lucide="sparkles" class="w-3.5 h-3.5 text-red-800 flex-shrink-0"></i>
+            <span id="narratorNoticeText" class="truncate text-[#2b170e]">Ambience will introduce the scene, then the script will speak.</span>
+          </div>
+          <button onclick="triggerImmediateVoice()" id="speakNowBtn" class="text-[10px] font-bold text-white hover:text-amber-100 px-2.5 py-0.5 bg-red-900 rounded border border-red-700 uppercase tracking-wide flex-shrink-0 active:scale-95 shadow-sm">
+            Speak Now
+          </button>
+        </div>
+
+        <!-- Audio Control Strip -->
+        <div class="mt-3.5 space-y-3 relative z-10">
+          <!-- Time & Slider Bar -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] font-mono text-[#3d2317] font-semibold">
+              <span id="timeElapsed">00:00</span>
+              <span id="timeDuration">02:30 (Loop)</span>
+            </div>
+            <div class="relative w-full h-2.5 bg-[#422214] border border-[#703d24] rounded-full overflow-hidden cursor-pointer shadow-inner" onclick="seekAudio(event)" id="progressBarContainer">
+              <div id="progressBar" class="absolute top-0 left-0 h-full w-0 bg-gradient-to-r from-red-800 via-red-600 to-amber-500 transition-all duration-100 rounded-full shadow-[0_0_12px_rgba(220,38,38,0.9)]"></div>
+            </div>
+          </div>
+
+          <!-- Playback Buttons Row -->
+          <div class="flex items-center justify-between gap-3 pt-1">
+            
+            <!-- Previous Stop Button -->
+            <button onclick="navigateStop(-1)" class="p-3 rounded-xl bg-[#deb88e] border border-[#8d5b3a] text-[#2c170d] hover:bg-[#ebd0b0] active:scale-95 transition-all shadow-md font-bold" title="Previous Stop">
+              <i data-lucide="skip-back" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Main Play / Stop Button (Blood Splashed Crimson) -->
+            <button id="masterPlayBtn" onclick="toggleAudio()" class="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#941111] via-[#b51717] to-[#7f0b0b] hover:from-[#a51414] hover:to-[#910d0d] text-white font-cinzel font-bold tracking-wider flex items-center justify-center gap-2 border border-red-500 shadow-[0_0_24px_rgba(185,28,28,0.7)] active:scale-98 transition-all">
+              <i id="playIcon" data-lucide="play" class="w-5 h-5 fill-white"></i>
+              <span id="playBtnLabel">SUMMON THE SPIRIT</span>
+            </button>
+
+            <!-- Next Stop Button -->
+            <button onclick="navigateStop(1)" class="p-3 rounded-xl bg-[#deb88e] border border-[#8d5b3a] text-[#2c170d] hover:bg-[#ebd0b0] active:scale-95 transition-all shadow-md font-bold" title="Next Stop">
+              <i data-lucide="skip-forward" class="w-5 h-5"></i>
+            </button>
+
+          </div>
+
+          <!-- Quick Audio Modifiers & Volume -->
+        <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+          <!-- Spatial Audio 3D Toggle -->
+          <button onclick="toggleBinauralMod()" id="binauralBtn" class="p-2.5 rounded-lg bg-red-950 border border-red-700 text-red-200 flex items-center justify-center gap-1.5 transition-all shadow-md font-semibold">
+            <i data-lucide="radio" class="w-4 h-4 text-red-400"></i>
+            <span id="binauralStatusText">3D Orbit: ACTIVE</span>
+          </button>
+          
+          <!-- Sound Source Selector (Synth vs Custom Audio) -->
+          <button onclick="toggleAudioSourceModal()" class="p-2.5 rounded-lg bg-[#dfbe98] border border-[#8f5a38] text-[#2a170e] flex items-center justify-center gap-1.5 hover:bg-[#ebd0b0] transition-all shadow-md font-semibold">
+            <i data-lucide="music-4" class="w-4 h-4 text-red-800"></i>
+            <span id="customAudioBtnLabel">Load / Replace MP3</span>
+          </button>
+        </div>
+
+        <!-- Stop Quick Actions: Google Maps Navigation & Map View -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="openStopInGoogleMaps()" class="py-2.5 px-3 rounded-lg bg-gradient-to-r from-red-900 to-red-950 hover:from-red-800 hover:to-red-900 border border-red-700 text-amber-100 flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition-all shadow-md">
+            <i data-lucide="navigation" class="w-3.5 h-3.5 text-red-400"></i>
+            <span id="guideToStopBtnLabel">Guide to Stop</span>
+          </button>
+          <button onclick="toggleMapModal()" class="py-2.5 px-3 rounded-lg bg-[#dcb689] hover:bg-[#ebd0b0] border border-[#8e5a37] text-[#2b170e] flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition-all shadow-md">
+            <i data-lucide="map" class="w-3.5 h-3.5 text-amber-800"></i>
+            <span id="trailBtnLabel">Interactive Trail</span>
+          </button>
+        </div>
+
+        <!-- Hidden Track Status Pill (Preserved for system callbacks) -->
+        <div id="attachedAudioBadge" class="hidden">
+          <span id="attachedTrackName">None</span>
+          <span id="trackAudioStatus">Standby</span>
+        </div>
+
+        <!-- Volume Slider -->
+        <div class="flex items-center gap-3 pt-1 text-[#3d2317]">
+          <i data-lucide="volume-2" class="w-4 h-4 text-[#3d2317]"></i>
+          <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.75" oninput="setAppVolume(this.value)" class="w-full h-2 bg-[#422214] rounded-lg appearance-none cursor-pointer accent-red-700 shadow-inner">
+        </div>
+      </div>
+    </section>
+
+    <!-- Embedded Dark Mode Trail Mini-Map Card (Weathered Cartography Parchment) -->
+    <section class="rounded-2xl soil-card p-4 space-y-3 relative overflow-hidden">
+      <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-red-900 border border-red-700 flex items-center justify-center shadow-md">
+            <i data-lucide="map" class="w-4 h-4 text-amber-100"></i>
+          </div>
+          <div>
+            <h3 class="font-cinzel text-xs font-black uppercase tracking-wider text-[#1e100a]">Rolle Spectral Trail Map</h3>
+            <p class="text-[10px] text-[#4d2c1c] font-medium">Chemin de Plein-Air &rarr; Château &rarr; Lac Léman Bank</p>
+          </div>
+        </div>
+        <button onclick="openFullRouteInGoogleMaps()" class="px-2.5 py-1 rounded-md bg-gradient-to-r from-red-900 to-red-950 border border-red-700 text-amber-100 text-[11px] font-bold flex items-center gap-1 hover:from-red-800 hover:to-red-900 transition-all active:scale-95 shadow-md">
+          <i data-lucide="external-link" class="w-3 h-3"></i> Full Route
+        </button>
+      </div>
+
+      <!-- Stylized Interactive SVG Vector Map (Burnt Edges & Antique Sepia Lake) -->
+      <div class="relative w-full h-56 rounded-xl bg-[#1f110a] border border-[#6e3d25] overflow-hidden shadow-inner flex items-center justify-center">
+        <svg id="trailSvgMap" viewBox="0 0 460 260" class="w-full h-full select-none">
+          <defs>
+            <linearGradient id="lakeWater" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#1b242e"/>
+              <stop offset="60%" stop-color="#0f151e"/>
+              <stop offset="100%" stop-color="#24110f"/>
+            </linearGradient>
+            <filter id="glowRed" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#ef4444"/>
+            </filter>
+          </defs>
+
+          <!-- Landmass Base -->
+          <rect width="460" height="260" fill="#2b180f"/>
+          <path d="M 0 60 Q 140 50 280 65 T 460 55" fill="none" stroke="#4a2c1d" stroke-width="1"/>
+          <path d="M 0 120 Q 180 110 320 125 T 460 115" fill="none" stroke="#4a2c1d" stroke-width="1"/>
+
+          <!-- Lac Léman Water Body -->
+          <path d="M 0 170 Q 120 160 230 190 T 460 175 L 460 260 L 0 260 Z" fill="url(#lakeWater)" stroke="#522a1b" stroke-width="1.2"/>
+          <path d="M 30 205 Q 80 200 130 205 T 230 205" fill="none" stroke="#38bdf8" stroke-opacity="0.2" stroke-width="1.2"/>
+          <path d="M 260 220 Q 320 215 380 222 T 440 220" fill="none" stroke="#38bdf8" stroke-opacity="0.2" stroke-width="1.2"/>
+
+          <!-- Île de la Harpe Island Silhouette -->
+          <ellipse cx="385" cy="225" rx="38" ry="16" fill="#361f15" stroke="#991b1b" stroke-opacity="0.85" stroke-width="1"/>
+          <polygon points="385,212 388,226 382,226" fill="#b91c1c" opacity="0.95"/>
+          <text x="385" y="247" text-anchor="middle" fill="#fee2e2" font-size="7" font-family="'Cinzel', serif" font-weight="bold" letter-spacing="0.5">ÎLE DE LA HARPE</text>
+
+          <!-- Pathway Vectors -->
+          <path d="M 75 25 L 85 95 L 140 105 L 175 145" fill="none" stroke="#4f2b1c" stroke-width="4.5" stroke-linecap="round"/>
+          <path d="M 120 165 Q 210 155 285 178 T 430 172" fill="none" stroke="#522d1d" stroke-width="4" stroke-linecap="round"/>
+          <path id="routeDottedPath" d="M 85 45 L 80 100 L 150 148 L 220 150 L 290 162 L 350 168" 
+                fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4,4" stroke-linecap="round" opacity="0.95"/>
+
+          <!-- Stop Waypoint Markers -->
+          <g id="mapMarker-0" class="cursor-pointer transition-transform duration-200" onclick="selectStop(0)">
+            <circle cx="85" cy="45" r="9" fill="#581c15" stroke="#dc2626" stroke-width="1.5"/>
+            <text x="85" y="48.5" text-anchor="middle" fill="#fee2e2" font-size="9" font-family="monospace" font-weight="bold">0</text>
+            <text x="98" y="47" fill="#fae8d4" font-size="8" font-family="'Inter', sans-serif" font-weight="bold">Plein-Air</text>
+          </g>
+
+          <g id="mapMarker-1" class="cursor-pointer transition-transform duration-200" onclick="selectStop(1)">
+            <circle cx="80" cy="100" r="9" fill="#4d3215" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="80" y="103.5" text-anchor="middle" fill="#fef3c7" font-size="9" font-family="monospace" font-weight="bold">1</text>
+            <text x="93" y="102" fill="#fae8d4" font-size="8" font-family="'Inter', sans-serif" font-weight="bold">Tilleuls</text>
+          </g>
+
+          <g id="mapMarker-2" class="cursor-pointer transition-transform duration-200" onclick="selectStop(2)">
+            <circle cx="150" cy="148" r="9" fill="#1b2a3a" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="150" y="151.5" text-anchor="middle" fill="#e0f2fe" font-size="9" font-family="monospace" font-weight="bold">2</text>
+            <text x="145" y="135" text-anchor="middle" fill="#fae8d4" font-size="8" font-family="'Inter', sans-serif" font-weight="bold">Lake Shore</text>
+          </g>
+
+          <g id="mapMarker-3" class="cursor-pointer transition-transform duration-200" onclick="selectStop(3)">
+            <rect x="210" y="132" width="20" height="18" fill="#5c151c" stroke="#f43f5e" stroke-width="1.5" rx="3"/>
+            <text x="220" y="145" text-anchor="middle" fill="#ffe4e6" font-size="9" font-family="monospace" font-weight="bold">3</text>
+            <text x="220" y="126" text-anchor="middle" fill="#fecdd3" font-size="8" font-family="'Cinzel', serif" font-weight="bold">CHÂTEAU</text>
+          </g>
+
+          <g id="mapMarker-4" class="cursor-pointer transition-transform duration-200" onclick="selectStop(4)">
+            <circle cx="290" cy="162" r="9" fill="#471640" stroke="#d946ef" stroke-width="1.5"/>
+            <text x="290" y="165.5" text-anchor="middle" fill="#fae8ff" font-size="9" font-family="monospace" font-weight="bold">4</text>
+            <text x="290" y="150" text-anchor="middle" fill="#fae8d4" font-size="8" font-family="'Inter', sans-serif" font-weight="bold">Willows</text>
+          </g>
+
+          <g id="mapMarker-5" class="cursor-pointer transition-transform duration-200" onclick="selectStop(5)">
+            <circle cx="350" cy="168" r="11" fill="#7f1111" stroke="#ef4444" stroke-width="2.5" filter="url(#glowRed)"/>
+            <text x="350" y="172" text-anchor="middle" fill="#fee2e2" font-size="10" font-family="monospace" font-weight="black">5</text>
+            <text x="350" y="190" text-anchor="middle" fill="#fca5a5" font-size="8" font-family="'Cinzel', serif" font-weight="bold">PENANGGALAN</text>
+            <line x1="350" y1="168" x2="385" y2="215" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,3" opacity="0.8"/>
+          </g>
+
+          <circle id="mapActivePing" cx="85" cy="45" r="16" fill="none" stroke="#ef4444" stroke-width="2.5" class="radar-pulse pointer-events-none"/>
+        </svg>
+
+        <div class="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-[#140b07]/90 backdrop-blur-md border border-[#633621] text-[10px] font-mono text-[#f3dec7] flex items-center gap-1.5 pointer-events-none">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span id="mapSelectedStopCaption">Target: Stop 0 (Chemin de Plein-Air)</span>
+        </div>
+      </div>
+    </section>
+
+      <!-- Folklore & Narrator Script Accordion (Antique Inked Ledger) -->
+      <section class="rounded-2xl soil-card overflow-hidden">
+        
+        <!-- Tab Switcher -->
+        <div class="flex border-b border-[#8e5c3b] text-xs font-cinzel font-bold bg-[#cdab83]">
+          <button onclick="switchTab('lore')" id="tabBtnLore" class="flex-1 py-3 text-center border-b-2 border-red-800 text-red-950 bg-[#e7d1b6]/80 font-black">
+            Folklore Fusion
+          </button>
+          <button onclick="switchTab('script')" id="tabBtnScript" class="flex-1 py-3 text-center border-b-2 border-transparent text-[#4e2d1d] hover:text-[#1f100a]">
+            Spoken Script
+          </button>
+        </div>
+
+        <!-- Lore Content View -->
+        <div id="tabContentLore" class="p-4 space-y-3 text-xs md:text-sm leading-relaxed text-[#2c180e]">
+          <div class="p-3.5 rounded-xl bg-[#e4caa8]/80 border border-red-800/40 relative overflow-hidden shadow-sm">
+            <h4 class="font-cinzel text-red-900 font-black mb-1 flex items-center gap-1.5" id="swissLegendHeading">
+              <i data-lucide="mountain-snow" class="w-4 h-4 text-red-700"></i> Swiss Alpine Legend
+            </h4>
+            <p id="swissLoreText" class="text-[#2b170e] font-normal leading-relaxed"></p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-[#dfc3a0]/80 border border-amber-900/40 relative overflow-hidden shadow-sm">
+            <h4 class="font-cinzel text-amber-950 font-black mb-1 flex items-center gap-1.5" id="malayLegendHeading">
+              <i data-lucide="trees" class="w-4 h-4 text-amber-800"></i> Malay Spectral Myth
+            </h4>
+            <p id="malayLoreText" class="text-[#2b170e] font-normal leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Narrator Script View -->
+        <div id="tabContentScript" class="p-4 space-y-2 text-xs md:text-sm leading-relaxed text-[#2c180e] hidden">
+          <div class="flex items-center justify-between text-[#4d2a19] mb-1">
+            <span class="text-[11px] uppercase tracking-wider font-mono text-red-900 font-bold" id="scriptSectionTitle">Live Tour Narration</span>
+            <span class="text-[10px] text-[#5a3320]" id="scriptSectionSubtitle">Read aloud or listen via headset</span>
+          </div>
+          <div id="spokenScriptText" class="font-serif italic text-[#1a0c06] border-l-3 border-red-800 pl-3.5 py-2 bg-[#dfc39f]/90 rounded-r-lg shadow-inner font-medium"></div>
+        </div>
+
+      </section>
+
+      <!-- Route Timeline Stops Selector -->
+      <section class="space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="font-cinzel text-xs font-black uppercase tracking-wider text-[#3d2012]" id="stationsListHeader">Ghost Walk Stations</h3>
+          <span class="text-[11px] text-[#55301e] font-semibold" id="stationsListSubheader">Tap stop to navigate</span>
+        </div>
+        <div id="stationsListContainer" class="space-y-1.5">
+          <!-- Dynamically Injected Stop Cards -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Bottom Floating Station Quick-Jump Bar (Aged Kraft Edge) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#291309]/95 backdrop-blur-xl border-t border-[#68371f] px-4 py-2 flex items-center justify-between max-w-xl mx-auto shadow-[0_-8px_25px_rgba(0,0,0,0.85)]">
+    <div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar w-full" id="dockStationsRow">
+      <!-- Generated Dock Pills -->
+    </div>
+  </nav>
+
+  <!-- Full Trail & Google Maps Modal Dialog -->
+  <div id="trailMapModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md rounded-2xl soil-card p-5 space-y-4 shadow-2xl relative">
+      <div class="blood-splatter-tr"></div>
+      <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center gap-2">
+          <i data-lucide="map-pinned" class="w-5 h-5 text-red-700"></i>
+          <h3 class="font-cinzel font-black text-[#1f0f08] text-base">Google Maps Ghost Trail</h3>
+        </div>
+        <button onclick="toggleMapModal()" class="text-[#4b2716] hover:text-black p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-[#2e180e] leading-relaxed relative z-10 font-medium">
+        Choose how you want to navigate Rolle's haunted lakeside. You can launch turn-by-turn navigation directly in Google Maps for the current stop or open the full 1.1 km route:
+      </p>
+
+      <div class="p-3.5 rounded-xl bg-[#dfc39f] border border-[#855132] space-y-1.5 relative z-10 shadow-inner">
+        <div class="flex items-center justify-between text-[11px] text-[#4d2817]">
+          <span class="uppercase tracking-wider font-mono text-red-900 font-black" id="modalMapStopTag">STOP 0 OF 5</span>
+          <span id="modalMapDistanceText" class="font-semibold">Distance: ~450m</span>
+        </div>
+        <div class="text-sm font-black text-[#1c0d06] font-cinzel" id="modalMapStopTitle">The Boundary Crossing</div>
+        <div class="text-xs text-amber-950 font-semibold flex items-center gap-1" id="modalMapStopLocation">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-700"></i> Chemin de Plein-Air, Rolle
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-1 relative z-10">
+        <button onclick="openStopInGoogleMaps()" class="w-full py-3 rounded-xl bg-gradient-to-r from-red-900 to-red-950 hover:from-red-800 hover:to-red-900 text-white font-cinzel text-xs font-bold tracking-wider flex items-center justify-center gap-2 border border-red-700 shadow-[0_0_18px_rgba(185,28,28,0.5)] active:scale-98 transition-all">
+          <i data-lucide="navigation" class="w-4 h-4"></i>
+          <span>NAVIGATE TO THIS STOP IN GOOGLE MAPS</span>
+        </button>
+
+        <button onclick="openFullRouteInGoogleMaps()" class="w-full py-2.5 rounded-xl bg-[#deb88e] hover:bg-[#ebd0b0] border border-[#8e5c3c] text-[#2c170d] text-xs font-bold flex items-center justify-center gap-2 active:scale-98 transition-all shadow-md">
+          <i data-lucide="compass" class="w-4 h-4 text-amber-800"></i>
+          <span>OPEN ENTIRE 5-STOP ROUTE IN GOOGLE MAPS</span>
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-[#8e5c3c] flex justify-end relative z-10">
+        <button onclick="toggleMapModal()" class="text-xs text-[#4b2716] hover:text-black font-bold px-3 py-1.5">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code & Deep Link Modal -->
+  <div id="qrModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm rounded-2xl soil-card p-5 space-y-4 text-center relative">
+      <div class="blood-splatter-tr"></div>
+      <div class="flex items-center justify-between relative z-10">
+        <h3 class="font-cinzel font-black text-[#1f0f08] text-base">Station QR Plaque</h3>
+        <button onclick="closeQRModal()" class="text-[#4b2716] hover:text-black p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-[#2c180e] relative z-10 font-medium">
+        Attendees can scan this plaque with their phone camera to instantly jump to the audio and lore for this station:
+      </p>
+
+      <div class="p-4 bg-white rounded-xl inline-block shadow-2xl mx-auto border-4 border-[#78462a] relative z-10" id="qrcodeCanvasBox"></div>
+
+      <div class="text-xs font-mono text-red-950 bg-[#e0c6a5] p-2 rounded-lg border border-[#8b5736] break-all select-all relative z-10 font-semibold" id="qrTargetUrlText">
+        https://...#stop-0
+      </div>
+
+      <div class="flex gap-2 relative z-10">
+        <button onclick="copyQRUrl()" class="flex-1 py-2 rounded-xl bg-[#deb98e] hover:bg-[#ebd0b0] border border-[#8c5737] text-[#2c170e] text-xs font-bold tracking-wide shadow-sm">
+          Copy Link
+        </button>
+        <button onclick="closeQRModal()" class="flex-1 py-2 rounded-xl bg-red-900 hover:bg-red-800 text-white text-xs font-bold tracking-wide shadow-md">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom MP3 / Audio Override Modal -->
+  <div id="audioSourceModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md rounded-2xl soil-card p-5 space-y-4 relative">
+      <div class="blood-splatter-tr"></div>
+      <div class="flex items-center justify-between relative z-10">
+        <h3 class="font-cinzel font-black text-[#1e0f08] text-base">Select or Upload MP3 Audio</h3>
+        <button onclick="closeAudioSourceModal()" class="text-[#4b2716] hover:text-black p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-[#2d180f] leading-relaxed relative z-10 font-medium">
+        Pick an audio file from your device for <span id="modalStationTitle" class="text-red-900 font-bold">this station</span>:
+      </p>
+
+      <div class="space-y-3 relative z-10">
+        <label class="block text-xs font-bold text-[#3d2012]">
+          Select MP3 File for This Stop
+          <input type="file" id="localAudioFileInput" accept="audio/*" onchange="handleCustomAudioFile(event)" class="mt-1 block w-full text-xs text-[#2c170e] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-red-900 file:text-amber-100 hover:file:bg-red-800 cursor-pointer">
+        </label>
+
+        <div class="p-3 rounded-xl bg-[#e0c6a5] border border-[#8c5737] space-y-1 shadow-inner">
+          <div class="text-[10px] uppercase font-bold text-[#55301f]">Configured Audio File</div>
+          <div id="modalPresetFileName" class="text-xs font-mono text-red-950 font-bold break-all"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-[#3d2012] mb-1">Or Direct Web Audio URL</label>
+          <input type="url" id="customAudioUrlInput" placeholder="https://example.com/audio.mp3" class="w-full p-2.5 rounded-xl bg-[#ebd2b4] border border-[#8d5939] text-xs text-[#1e0f08] placeholder-[#7d5035] focus:outline-none focus:border-red-700 shadow-inner">
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 relative z-10">
+        <button onclick="applyCustomAudioUrl()" class="flex-1 py-2.5 rounded-xl bg-red-900 hover:bg-red-800 text-white text-xs font-bold shadow-md">
+          Apply URL
+        </button>
+        <button onclick="reloadDefaultAudio()" class="flex-1 py-2.5 rounded-xl bg-[#deb88e] hover:bg-[#ebd0b0] border border-[#8f5a38] text-[#2c170d] text-xs font-bold">
+          Reset to Default
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="globalHtml5Audio" preload="auto"></audio>
+
+  <!-- APP STATE AND SOUND SYNTHESIS ENGINE -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. TOUR DATA & GLOBAL APPLICATION STATE
+    // -------------------------------------------------------------
+    let currentLanguage = 'en'; // 'en' or 'id'
+    let audioCtx = null;
+    let masterGain = null;
+    let pannerNode = null;
+    let analyserNode = null;
+    let activeNodes = [];
+    let pannerAngle = 0;
+    let pannerInterval = null;
+
+    let isPlaying = false;
+    let currentStopIndex = 0;
+    let masterVolume = 0.75;
+    let isBinauralEnabled = true;
+    let isVoiceNarrationEnabled = true;
+    let playbackSeconds = 0;
+    let progressTimer = null;
+    let html5Audio = null;
+
+    // Speech Synthesis & Ducking State
+    let speechTimeoutTimer = null;
+    let isSpeechActive = false;
+    let availableVoices = [];
+
+    const UI_TRANSLATIONS = {
+      en: {
+        langTag: "ID",
+        headphoneNotice: "Ambience plays first, followed by <strong>Spoken Narration</strong>",
+        voiceOn: "Voice: ON",
+        voiceMuted: "Voice: MUTED",
+        speakNow: "Speak Now",
+        playSummon: "SUMMON THE SPIRIT",
+        playPause: "BANISH THE SPIRIT",
+        binauralOn: "3D Orbit: ACTIVE",
+        binauralOff: "3D Orbit: OFF",
+        loadMp3: "Load / Replace MP3",
+        guideToStop: "Guide to Stop",
+        interactiveTrail: "Interactive Trail",
+        swissHeading: "Swiss Alpine Legend",
+        malayHeading: "Malay Spectral Myth",
+        tabLore: "Folklore Fusion",
+        tabScript: "Spoken Script",
+        scriptTitle: "Live Tour Narration",
+        scriptSubtitle: "Read aloud or listen via headset",
+        stationsHeader: "Ghost Walk Stations",
+        stationsSubheader: "Tap stop to navigate",
+        waitVoiceNotice: (s) => `The spirit stirs. Voice begins in ${s}s...`,
+        speakingNotice: "Spectral Guide speaking into your headset...",
+        finishedVoiceNotice: "Ambience playing. Voice narration concluded.",
+        standbyVoiceNotice: "Ambience will introduce the scene, then the script will speak.",
+        pressSummonNotice: "Tap 'Summon the Spirit' to awaken the dead.",
+        engineActive: "Acoustic Horror Engine Active",
+        engineStandby: "Engine Standby",
+        fullRoute: "Full Route",
+        stopPrefix: "STOP",
+        ofLabel: "OF"
+      },
+      id: {
+        langTag: "EN",
+        headphoneNotice: "Suara latar berbunyi terlebih dahulu, disusul <strong>Narasi Suara</strong>",
+        voiceOn: "Suara: AKTIF",
+        voiceMuted: "Suara: SENYAP",
+        speakNow: "Bicara Sekarang",
+        playSummon: "PANGGIL ROH GAIB",
+        playPause: "USIR ROH GAIB",
+        binauralOn: "Orbit 3D: AKTIF",
+        binauralOff: "Orbit 3D: MATI",
+        loadMp3: "Muat / Ganti MP3",
+        guideToStop: "Navigasi ke Pos",
+        interactiveTrail: "Peta Interaktif",
+        swissHeading: "Legenda Alpen Swiss",
+        malayHeading: "Mitos Gaib Melayu",
+        tabLore: "Fusi Cerita Rakyat",
+        tabScript: "Naskah Narasi",
+        scriptTitle: "Narasi Tur Langsung",
+        scriptSubtitle: "Bacakan atau dengarkan lewat headset",
+        stationsHeader: "Pos Wisata Hantu",
+        stationsSubheader: "Ketuk pos untuk navigasi",
+        waitVoiceNotice: (s) => `Roh gaib bangkit. Narasi dimulai dlm ${s} detik...`,
+        speakingNotice: "Pemandu gaib sedang berbisik di telinga Anda...",
+        finishedVoiceNotice: "Suara latar aktif. Narasi selesai.",
+        standbyVoiceNotice: "Suasana mistis akan mengawali, lalu narasi mulai berbicara.",
+        pressSummonNotice: "Ketuk 'Panggil Roh Gaib' untuk membangunkan yang tiada.",
+        engineActive: "Mesin Akustik Horor Beroperasi",
+        engineStandby: "Mesin Bersiap",
+        fullRoute: "Rute Lengkap",
+        stopPrefix: "POS",
+        ofLabel: "DARI"
+      }
+    };
+
+    const GHOST_STOPS = [
+      {
+        slug: "stop-0",
+        number: 0,
+        icon: "compass",
+        location: "Chemin de Plein-Air",
+        lat: 46.46250,
+        lng: 6.34172,
+        placeQuery: "Chemin de Plein-Air, 1180 Rolle, Switzerland",
+        mapX: 85,
+        mapY: 45,
+        synthType: "crossroads",
+        defaultAudioFile: "freesound_community-ethnic-malay-music-16877.mp3",
+        activeAudioSrc: "freesound_community-ethnic-malay-music-16877.mp3",
+        title: {
+          en: "The Boundary Crossing",
+          id: "Titik Lintas Batas Gaib"
+        },
+        subtitle: {
+          en: "The Threshold: Malay Gamelan & Alpine Winds",
+          id: "Ambang Gaib: Gamelan Melayu & Angin Alpen"
+        },
+        swissLore: {
+          en: "Alpine legends warn that crossroads between settlements and wild slopes are haunted by 'Arme Seelen' (Poor Souls) wandering in purgatorial limbo, seeking acknowledgment from travelers before they venture into the dark.",
+          id: "Legenda pegunungan Alpen mengingatkan bahwa simpang jalan antara pemukiman dan lereng liar dihantui oleh 'Arme Seelen' (Arwah Malang) yang mengembara di alam perantara, meminta pengakuan atau doa dari pengelana sebelum mereka melangkah ke dalam kegelapan pekat."
+        },
+        malayLore: {
+          en: "In ancient Malay tradition, entering the spirit wildlands (hutan) requires humility and respect. Before stepping past the threshold, travelers would respectfully whisper: 'Tok Nenek penjaga hutan, cucu tumpang lalu' ('Guardians of the forest, we seek your permission to pass'), pleading with the unseen Semangat Hutan to grant safe passage and keep their shadows hidden.",
+          id: "Dalam tradisi Melayu kuno, memasuki rimba liar menuntut pantang-larang dan rasa hormat yang mendalam. Sebelum melangkahi batas, pengelana melafalkan permohonan santun: 'Tok Nenek penjaga hutan, cucu tumpang lalu' ('Wahai penunggu hutan, izinkan kami menumpang lewat'), memohon kepada Semangat Hutan agar diberi perlindungan dan tidak diganggu."
+        },
+        script: {
+          en: "Listen closely as we stand on the threshold of Chemin de Plein-Air. Tonight, the barrier dividing Swiss mountain winds and equatorial spirit paths has withered. Before you take another step into the dark, whisper with respect: 'Tok Nenek penjaga hutan, cucu tumpang lalu'... Guardians of the forest, we seek your permission to pass. When cold gusts rise and wolves howl, do not look over your left shoulder, and never answer your name if called from the trees.",
+          id: "Dengarkan baik-baik saat kita berdiri di ambang batas Chemin de Plein-Air. Malam ini, tabir pembatas antara dinginnya angin gunung Swiss dan lintasan roh khatulistiwa telah luruh. Sebelum melangkah lebih jauh ke dalam kegelapan, bisikkan dengan takzim: 'Tok Nenek penjaga hutan, cucu tumpang lalu'. Bila hembusan dingin menerpa dan lolongan serigala terdengar, jangan pernah menoleh ke pundak kirimu, dan jangan sekali-kali menyahut jika namamu dibisikkan dari balik pepohonan."
+        }
+      },
+      {
+        slug: "stop-1",
+        number: 1,
+        icon: "trees",
+        location: "Place des Tilleuls Opening",
+        lat: 46.45874,
+        lng: 6.34050,
+        placeQuery: "Place des Tilleuls, 1180 Rolle, Switzerland",
+        mapX: 80,
+        mapY: 100,
+        synthType: "courtroom",
+        defaultAudioFile: "freesound_community-030822_leaves-rustling-in-wind-79518.mp3",
+        activeAudioSrc: "freesound_community-030822_leaves-rustling-in-wind-79518.mp3",
+        title: {
+          en: "The Linden Trees & Penunggu Pokok",
+          id: "Pohon Tilleul & Penunggu Pokok"
+        },
+        subtitle: {
+          en: "Gerichtslinde Spirits & Puaka Tree Guardians",
+          id: "Roh Mahkamah Gerichtslinde & Penjaga Pohon Puaka"
+        },
+        swissLore: {
+          en: "In Swiss antiquity, venerable Linden trees (Tilleuls) marked sacred judicial sites ('Gerichtslinde'). Under these ancient branches, village tribunals gathered, treaties were consecrated, and condemned souls took their final breath.",
+          id: "Dalam sejarah purba Swiss, pohon Linden (Tilleuls) tua menjadi tapak peradilan keramat ('Gerichtslinde'). Di bawah naungan dahan-dahan purba inilah majelis desa bersidang, sumpah darah dikukuhkan, dan mereka yang divonis mati menghembuskan nafas terakhir."
+        },
+        malayLore: {
+          en: "Centuries-old sentinel trees are sacred domains of Orang Bunian (the hidden ethereal beings) and ancient Puaka guardians. If you tread disrespectfully, take what is not yours, or mock the quiet of the grove, you risk being 'disorok hantu': spirited away into an unseen, liminal labyrinth where you wander forever in plain sight of the living, yet invisible and unheard.",
+          id: "Pohon-pohon raksasa berumur ratusan tahun adalah kediaman Orang Bunian serta entitas penunggu Puaka. Siapa pun yang bersikap lancang, merusak, atau menantang kesunyian rimba berisiko 'disorok hantu': disembunyikan ke alam gaib tak kasat mata, tersesat di dimensi lain tepat di depan mata orang hidup namun tak pernah dapat pulang."
+        },
+        script: {
+          en: "You stand beneath the Tilleuls. Notice the creak of the limbs above you. These linden branches served as courtrooms and gallows centuries ago, and the Orang Bunian and Puaka watch from the hollows. Keep close to the path and do not speak ill of the woods, or you may find yourself 'disorok hantu'... veiled in the spirit world, wandering lost forever among the trees.",
+          id: "Kini kalian berdiri di bawah naungan pohon Tilleuls. Rasakan derit dahan-dahan besar di atas kepala kalian. Batang linden ini berfungsi sebagai ruang peradilan berabad-abad silam, dan kini Orang Bunian serta sang Puaka mengintai dari balik relung kayu. Rapatkan barisan dan jaga lisanmu, atau kau akan 'disorok hantu': diseret ke alam gaib dan tersesat selamanya di antara pepohonan purba ini."
+        }
+      },
+      {
+        slug: "stop-2",
+        number: 2,
+        icon: "waves",
+        location: "Lakeside Quai Path",
+        lat: 46.45820,
+        lng: 6.34110,
+        placeQuery: "Quai de la Harpe, 1180 Rolle, Switzerland",
+        mapX: 150,
+        mapY: 148,
+        synthType: "water",
+        defaultAudioFile: "freesound_community-witch-forest-atmo-24654.mp3",
+        activeAudioSrc: "freesound_community-witch-forest-atmo-24654.mp3",
+        title: {
+          en: "The Black Shoreline with the Serpents & the Hantu Air",
+          id: "Tepian Hitam, Naga Danau & Hantu Air"
+        },
+        subtitle: {
+          en: "Lac Léman Dragon-Worms & Hantu Air",
+          id: "Siluman Naga Danau Léman & Hantu Air"
+        },
+        swissLore: {
+          en: "Dark folklore of Lake Geneva tells of fierce squalls born without warning and subterranean dragon serpents ('Le Monstre du Léman') that drag reckless fishermen and boatmen down into the sunless abyss.",
+          id: "Cerita rakyat kelam Danau Jenewa berkisah tentang badai dan pusaran air mendadak serta siluman ular raksasa pemakan bangkai ('Le Monstre du Léman') yang menyeret nelayan dan pendayung ceroboh ke dalam palung tanpa sinar matahari."
+        },
+        malayLore: {
+          en: "The 'Hantu Air' is a feared water specter that drifts along the shallows, appearing as floating weed or a deceptive current. It reaches out with ice-cold hands to clutch the ankles of night walkers and pull them beneath the silt.",
+          id: "'Hantu Air' adalah siluman air pembawa celaka yang hanyut di perairan dangkal, sering kali menyamar sebagai lumut mengapung atau arus tenang yang menipu. Jemari sedingin es miliknya siap menyambar pergelangan kaki pengelana malam dan menenggelamkannya ke dasar lumpur."
+        },
+        script: {
+          en: "Feel the sharp drop in temperature as the lake breeze hits your skin. Lac Léman is deep, treacherous, and old. In the silence between the waves lapping against the stone walls, listen for the submerged breath of the Hantu Air waiting just beneath the surface.",
+          id: "Rasakan dinginnya suhu yang menusuk seketika angin danau menyapu kulitmu. Danau Léman sangat dalam, berbahaya, dan purba. Di sela keheningan deburan ombak yang membentur dinding bebatuan, dengarkan deru nafas Hantu Air yang menunggu mangsa tepat di bawah permukaan air."
+        }
+      },
+      {
+        slug: "stop-3",
+        number: 3,
+        icon: "link-2",
+        location: "Château de Rolle Ramparts",
+        lat: 46.45863,
+        lng: 6.34119,
+        placeQuery: "Château de Rolle, Place des Tilleuls, 1180 Rolle, Switzerland",
+        mapX: 220,
+        mapY: 145,
+        synthType: "gibbet",
+        defaultAudioFile: "tanweraman-chain-rattling-prison-370007.mp3",
+        activeAudioSrc: "tanweraman-chain-rattling-prison-370007.mp3",
+        title: {
+          en: "Château de Rolle & Hantu Pocong",
+          id: "Kastil Rolle & Hantu Pocong"
+        },
+        subtitle: {
+          en: "Dungeon Gibbets & Shrouded Pocong",
+          id: "Sangkar Siksa Bawah Tanah & Belenggu Pocong"
+        },
+        swissLore: {
+          en: "The medieval stone fortress of Rolle locked prisoners within lightless oubliettes. Those sentenced for treachery were locked in iron gibbet cages suspended from ramparts, dragging chains along the cold stones as gruesome warnings to passing boats.",
+          id: "Benteng batu abad pertengahan Rolle mengurung tawanan di ruang bawah tanah tanpa cahaya. Mereka yang dituduh berkhianat digantung di dalam sangkar besi di dinding benteng, menyeret rantai karat pada bebatuan dingin sebagai peringatan mengerikan bagi perahu yang lewat."
+        },
+        malayLore: {
+          en: "When traditional burial shrouds (kain kafan) are left unloosened, the deceased cannot achieve peace and arises as the 'Pocong': a bound spirit that hops and thuds through the night, dragging heavy burial fetters across cobblestones and gravel.",
+          id: "Bila ikatan tali kain kafan jenazah lupa dilepaskan saat pemakaman, si mati tak dapat tenang dan bangkit menjadi 'Pocong': jasad terikat yang melompat dan menghempas tanah di keheningan malam, menyeret belenggu liang kubur di atas batu dan kerikil."
+        },
+        script: {
+          en: "Look upon the towers of Château de Rolle. The cages suspended outside these walls held souls doomed never to touch sacred earth again. Denied final release, their stiffened bindings and iron chains rattle and drag against the stone floor in the dark whenever the castle bells chime.",
+          id: "Pandanglah menara tinggi Château de Rolle. Sangkar-sangkar yang pernah tergantung di luar dinding benteng ini mengurung jiwa-jiwa malang yang diharamkan menyentuh tanah suci. Tanpa pelepasan terakhir, ikatan kafan yang kaku dan rantai besi mereka bergemerincing menyeret lantai batu tiap kali dentang lonceng kastil berbunyi."
+        }
+      },
+      {
+        slug: "stop-4",
+        number: 4,
+        icon: "sparkles",
+        location: "Shoreline Willow Path",
+        lat: 46.45720,
+        lng: 6.33850,
+        placeQuery: "Promenade du Lac, 1180 Rolle, Switzerland",
+        mapX: 290,
+        mapY: 162,
+        synthType: "pontianak",
+        defaultAudioFile: "worldlikeall-witch-noise-260363.mp3",
+        activeAudioSrc: "worldlikeall-witch-noise-260363.mp3",
+        title: {
+          en: "The Weeping Willow Tree",
+          id: "Pohon Dedalu Menangis (Sarang Pontianak)"
+        },
+        subtitle: {
+          en: "La Dame Blanche & Pontianak's Mengilai",
+          id: "Wanita Bergaun Putih & Ketawa Mengilai Pontianak"
+        },
+        swissLore: {
+          en: "The 'Weiße Frauen' (White Ladies) haunt misty Alpine marshes and weeping willows, luring midnight wanderers away from safety with seductive weeping that turns to mockery.",
+          id: "'Weiße Frauen' (Wanita Putih Gaib) bersemayam di rawa-rawa berkabut Alpen dan rerimbunan pohon dedalu, menjebak para musafir malam menjauhi jalan setapak lewat tangisan memilukan yang mendadak berubah menjadi tawa cemoohan."
+        },
+        malayLore: {
+          en: "The 'Pontianak' is the predatory spirit of a woman concealed among weeping willows and banana groves. She heralds her attack with the scent of sweet frangipani and night jasmine that suddenly turns to rotting flesh, unleashing her bloodcurdling laughter directly overhead.",
+          id: "'Pontianak' adalah sundel bolong pemangsa manusia yang bersembunyi di rimbun dedalu dan rumpun pisang. Kemunculannya diawali wangi bunga melati dan kamboja semerbak yang mendadak berubah menjadi bau bangkai busuk, disusul suara ketawa mengilai yang menyayat telinga tepat di atas kepalamu."
+        },
+        script: {
+          en: "Step gently beneath these hanging willow boughs. You are walking into the Pontianak's nest. In the branches above, long black hair intertwines with the leaves. If you smell sweet night jasmine, stop breathing: she is near. When her chilling laughter echoes through the willow boughs, do not look up!",
+          id: "Melangkahlah perlahan di bawah juntaian dahan pohon dedalu ini. Kalian sedang melangkah masuk ke sarang Pontianak. Di ranting atas kepalamu, jalinan rambut hitam legamnya menyatu dengan dedaunan. Jika tiba-tiba tercium semerbak wangi melati, tahan nafasmu: dia berada sangat dekat. Bila suara tawanya yang mengilai memecah malam, jangan pernah mendongak ke atas!"
+        }
+      },
+      {
+        slug: "stop-5",
+        number: 5,
+        icon: "skull",
+        location: "Promenade Shore Facing Île de la Harpe",
+        lat: 46.45645,
+        lng: 6.33627,
+        placeQuery: "Place de la Harpe, 1180 Rolle, Switzerland",
+        mapX: 350,
+        mapY: 168,
+        synthType: "penanggalan",
+        defaultAudioFile: null,
+        activeAudioSrc: null,
+        title: {
+          en: "The Penanggalan",
+          id: "Siluman Penanggalan (Kuyang)"
+        },
+        subtitle: {
+          en: "The Hovering Penanggalan Across Lac Léman",
+          id: "Kepala Terbang Melayang di Atas Danau Léman"
+        },
+        swissLore: {
+          en: "Across from Île de la Harpe, legend tells of a solitary phantom banished between water and sky: exiled from both mainland Rolle and the island obelisk, doomed to hover eternally over the black lake.",
+          id: "Tepat di seberang Île de la Harpe, legenda tua mengisahkan sosok arwah terkutuk yang terasing antara air dan langit: dibuang dari daratan Rolle maupun tugu pulau, dihukum untuk melayang selamanya di atas danau hitam pekat."
+        },
+        malayLore: {
+          en: "The 'Penanggalan' is one of Southeast Asia's most gruesome entities: a detached vampire head floating with dangling, glistening entrails and dripping organs that soak in vinegar. It hovers over open waters, seeking warmth and fresh blood while emitting wet, squelching whispers.",
+          id: "'Penanggalan' (atau Kuyang) adalah siluman paling mengerikan di Asia Tenggara: kepala wanita tanggal yang terbang melayang dengan organ isi perut serta usus yang berlumuran darah dan cuka. Ia mengambang mencari mangsa darah segar sambil mengeluarkan desis basah yang menjijikkan."
+        },
+        script: {
+          en: "Cast your eyes across the black waters toward the island. Hovering in the midnight mist is not a mere specter, but the dreaded Penanggalan: a severed head floating freely with dripping entrails trailing through the air. Hear the sickening squelch of her organs and her wet, hissing breath across the waves. You have reached the final station, but her gaze is fixed upon you.",
+          id: "Layangkan pandanganmu menembus gelapnya air danau ke arah pulau. Yang melayang di tengah kabut tengah malam itu bukanlah hantu biasa, melainkan Penanggalan: kepala tanggal berdarah yang melayang bebas dengan isi perut menjuntai meneteskan lendir. Dengarkan bunyi denyut basah organ dalamnya dan desah nafas histerisnya melintasi ombak. Kalian telah tiba di pos terakhir, namun tatapannya kini terkunci padamu."
+        }
+      }
+    ];
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'id' : 'en';
+      const t = UI_TRANSLATIONS[currentLanguage];
+
+      document.getElementById('currentLangLabel').innerText = t.langTag;
+      document.getElementById('headphoneNoticeText').innerHTML = t.headphoneNotice;
+      document.getElementById('voiceStatusPill').innerText = isVoiceNarrationEnabled ? t.voiceOn : t.voiceMuted;
+      document.getElementById('speakNowBtn').innerText = t.speakNow;
+      document.getElementById('customAudioBtnLabel').innerText = t.loadMp3;
+      document.getElementById('guideToStopBtnLabel').innerText = t.guideToStop;
+      document.getElementById('trailBtnLabel').innerText = t.interactiveTrail;
+      document.getElementById('swissLegendHeading').innerHTML = `<i data-lucide="mountain-snow" class="w-4 h-4 text-red-700"></i> ${t.swissHeading}`;
+      document.getElementById('malayLegendHeading').innerHTML = `<i data-lucide="trees" class="w-4 h-4 text-amber-800"></i> ${t.malayHeading}`;
+      document.getElementById('tabBtnLore').innerText = t.tabLore;
+      document.getElementById('tabBtnScript').innerText = t.tabScript;
+      document.getElementById('scriptSectionTitle').innerText = t.scriptTitle;
+      document.getElementById('scriptSectionSubtitle').innerText = t.scriptSubtitle;
+      document.getElementById('stationsListHeader').innerText = t.stationsHeader;
+      document.getElementById('stationsListSubheader').innerText = t.stationsSubheader;
+      
+      updatePlayButtonUI(isPlaying);
+      renderStationDetails();
+
+      // If speech is currently running, re-trigger with new language
+      if (isPlaying && isVoiceNarrationEnabled) {
+        if (speechTimeoutTimer) clearTimeout(speechTimeoutTimer);
+        cancelSpeechSynthesis();
+        speakCurrentStopScript();
+      }
+    }
+
+    function populateVoices() {
+      if ('speechSynthesis' in window) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+    }
+
+    populateVoices();
+    if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+
+        analyserNode = audioCtx.createAnalyser();
+        analyserNode.fftSize = 256;
+
+        if (audioCtx.createStereoPanner) {
+          pannerNode = audioCtx.createStereoPanner();
+          pannerNode.pan.setValueAtTime(0, audioCtx.currentTime);
+          pannerNode.connect(analyserNode);
+        } else {
+          pannerNode = null;
+        }
+
+        if (pannerNode) {
+          masterGain.connect(pannerNode);
+        } else {
+          masterGain.connect(analyserNode);
+        }
+        analyserNode.connect(audioCtx.destination);
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function stopAllAudio() {
+      if (progressTimer) {
+        clearInterval(progressTimer);
+        progressTimer = null;
+      }
+      if (pannerInterval) {
+        clearInterval(pannerInterval);
+        pannerInterval = null;
+      }
+      if (speechTimeoutTimer) {
+        clearTimeout(speechTimeoutTimer);
+        speechTimeoutTimer = null;
+      }
+      cancelSpeechSynthesis();
+
+      if (html5Audio) {
+        try {
+          html5Audio.pause();
+          html5Audio.currentTime = 0;
+        } catch (e) {}
+      }
+      activeNodes.forEach(nodeOrCleaner => {
+        try {
+          if (typeof nodeOrCleaner === 'function') {
+            nodeOrCleaner();
+          } else if (nodeOrCleaner && typeof nodeOrCleaner.stop === 'function') {
+            nodeOrCleaner.stop();
+            nodeOrCleaner.disconnect();
+          } else if (nodeOrCleaner && typeof nodeOrCleaner.disconnect === 'function') {
+            nodeOrCleaner.disconnect();
+          }
+        } catch (e) {}
+      });
+      activeNodes = [];
+      resetAudioDucking();
+    }
+
+    // PLAY FILE FUNCTION - Direct HTML5 Audio with fallback
+    function playCurrentTrack(stopData) {
+      if (!html5Audio) {
+        html5Audio = document.getElementById('globalHtml5Audio');
+      }
+
+      if (stopData.activeAudioSrc) {
+        html5Audio.src = stopData.activeAudioSrc;
+        html5Audio.volume = isSpeechActive ? masterVolume * 0.35 : masterVolume;
+        html5Audio.loop = true;
+
+        const playPromise = html5Audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn("Direct file play blocked or not found at path:", stopData.activeAudioSrc, err);
+          });
+        }
+      } else {
+        html5Audio.pause();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // SPEECH SYNTHESIS ENGINE WITH AUDIO DUCKING
+    // -------------------------------------------------------------
+    function cancelSpeechSynthesis() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      isSpeechActive = false;
+    }
+
+    function applyAudioDucking() {
+      isSpeechActive = true;
+      if (masterGain && audioCtx) {
+        masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        masterGain.gain.linearRampToValueAtTime(masterVolume * 0.32, audioCtx.currentTime + 0.6);
+      }
+      if (html5Audio) {
+        html5Audio.volume = masterVolume * 0.32;
+      }
+      updateNarrationLiveBadge(true, "Spectral Guide speaking into your headset...");
+    }
+
+    function resetAudioDucking() {
+      isSpeechActive = false;
+      if (masterGain && audioCtx) {
+        masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        masterGain.gain.linearRampToValueAtTime(masterVolume, audioCtx.currentTime + 0.8);
+      }
+      if (html5Audio) {
+        html5Audio.volume = masterVolume;
+      }
+      updateNarrationLiveBadge(false, "Ambience playing. Voice narration concluded.");
+    }
+
+    function updateNarrationLiveBadge(speaking, message) {
+      const banner = document.getElementById('narrationLiveBanner');
+      const text = document.getElementById('narratorNoticeText');
+      const icon = document.getElementById('narratorIcon');
+      const statusLabel = document.getElementById('audioLiveStatusLabel');
+
+      if (speaking) {
+        banner.className = "mt-2.5 px-3 py-1.5 rounded-lg bg-red-950/80 border border-red-600/80 flex items-center justify-between text-[11px] relative z-10 shadow-[0_0_12px_rgba(239,68,68,0.3)]";
+        text.className = "truncate text-red-200 font-semibold";
+        text.innerText = message;
+        icon.className = "w-3.5 h-3.5 text-red-300 flex-shrink-0 animate-pulse";
+        if (statusLabel) statusLabel.innerText = "VOICE NARRATION ACTIVE";
+      } else {
+        banner.className = "mt-2.5 px-3 py-1.5 rounded-lg bg-[#140807] border border-red-900/60 flex items-center justify-between text-[11px] relative z-10 transition-all";
+        text.className = "truncate text-stone-300";
+        text.innerText = message;
+        icon.className = "w-3.5 h-3.5 text-red-400 flex-shrink-0";
+        if (statusLabel) statusLabel.innerText = isPlaying ? "Acoustic Horror Engine Active" : "Engine Standby";
+      }
+    }
+
+    function scheduleSpokenScript(delayMs) {
+      if (!isVoiceNarrationEnabled) return;
+      if (!('speechSynthesis' in window)) {
+        console.warn("Speech Synthesis is not supported in this browser.");
+        return;
+      }
+
+      cancelSpeechSynthesis();
+      updateNarrationLiveBadge(false, `Ambience playing. Voice begins in ${Math.round(delayMs / 1000)}s...`);
+
+      speechTimeoutTimer = setTimeout(() => {
+        if (!isPlaying) return;
+        speakCurrentStopScript();
+      }, delayMs);
+    }
+
+    function speakCurrentStopScript() {
+      if (!('speechSynthesis' in window)) return;
+      cancelSpeechSynthesis();
+
+      const stop = GHOST_STOPS[currentStopIndex];
+      const scriptText = stop.script[currentLanguage] || stop.script.en;
+      const cleanScript = scriptText.replace(/["']/g, '');
+      const utterance = new SpeechSynthesisUtterance(cleanScript);
+
+      populateVoices();
+      if (availableVoices.length > 0) {
+        if (currentLanguage === 'id') {
+          // Indonesian voice detection
+          let idVoice = availableVoices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id') || v.lang.startsWith('in'));
+          if (!idVoice) {
+            idVoice = availableVoices.find(v => v.name.toLowerCase().includes('indonesia') || v.name.toLowerCase().includes('damayanti') || v.name.toLowerCase().includes('andika'));
+          }
+          if (idVoice) {
+            utterance.voice = idVoice;
+            utterance.lang = idVoice.lang || 'id-ID';
+          } else {
+            utterance.lang = 'id-ID';
+          }
+        } else {
+          // English voice selection (deep male prioritized)
+          let maleVoice = availableVoices.find(v => 
+            v.lang.startsWith('en') && 
+            (v.name.toLowerCase().includes('male') || 
+             v.name.includes('Daniel') || 
+             v.name.includes('Arthur') || 
+             v.name.includes('Oliver') || 
+             v.name.includes('George') || 
+             v.name.includes('David') || 
+             v.name.includes('Alex') || 
+             v.name.includes('Guy')) &&
+            !v.name.toLowerCase().includes('female')
+          );
+
+          if (!maleVoice) {
+            maleVoice = availableVoices.find(v => 
+              v.lang.startsWith('en') && 
+              v.name.toLowerCase().includes('male')
+            );
+          }
+
+          if (!maleVoice) {
+            maleVoice = availableVoices.find(v => v.lang === 'en-GB' || v.lang === 'en-US' || v.lang.startsWith('en'));
+          }
+
+          if (maleVoice) {
+            utterance.voice = maleVoice;
+            utterance.lang = maleVoice.lang || 'en-GB';
+          }
+        }
+      }
+
+      // Atmospheric narration cadence
+      utterance.rate = currentLanguage === 'id' ? 0.88 : 0.85;
+      utterance.pitch = currentLanguage === 'id' ? 0.92 : 0.88;
+      utterance.volume = 1.0;
+
+      utterance.onstart = () => {
+        applyAudioDucking();
+      };
+
+      utterance.onend = () => {
+        resetAudioDucking();
+      };
+
+      utterance.onerror = (e) => {
+        console.warn("Speech synthesis error:", e);
+        resetAudioDucking();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function triggerImmediateVoice() {
+      if (!isPlaying) {
+        toggleAudio();
+      }
+      if (speechTimeoutTimer) {
+        clearTimeout(speechTimeoutTimer);
+        speechTimeoutTimer = null;
+      }
+      speakCurrentStopScript();
+    }
+
+    function toggleVoiceNarrationSetting() {
+      isVoiceNarrationEnabled = !isVoiceNarrationEnabled;
+      const pill = document.getElementById('voiceStatusPill');
+      const btn = document.getElementById('voiceToggleBtn');
+
+      if (isVoiceNarrationEnabled) {
+        pill.innerText = "Voice: ON";
+        btn.classList.add('bg-red-950/90', 'text-red-300', 'border-red-700/60');
+        btn.classList.remove('bg-stone-900', 'text-stone-400', 'border-stone-700');
+        if (isPlaying) {
+          scheduleSpokenScript(2000);
+        }
+      } else {
+        pill.innerText = "Voice: MUTED";
+        btn.classList.remove('bg-red-950/90', 'text-red-300', 'border-red-700/60');
+        btn.classList.add('bg-stone-900', 'text-stone-400', 'border-stone-700');
+        cancelSpeechSynthesis();
+        resetAudioDucking();
+        updateNarrationLiveBadge(false, "Voice muted. Pure soundscape active.");
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 2. PROCEDURAL HORROR AUDIO ENGINE
+    // -------------------------------------------------------------
+    function startCrossroadsSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.35, 220, 680);
+      activeNodes.push(stopWind);
+
+      const howlTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playOrganicWolfHowl(dest);
+      }, 7600);
+      activeNodes.push(() => clearInterval(howlTimer));
+      setTimeout(() => { if (isPlaying) playOrganicWolfHowl(dest); }, 900);
+
+      const gamelanTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playSpectralGamelanMotif(dest);
+      }, 4200);
+      activeNodes.push(() => clearInterval(gamelanTimer));
+      setTimeout(() => { if (isPlaying) playSpectralGamelanMotif(dest); }, 1400);
+    }
+
+    function startCourtroomSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.3, 180, 520);
+      activeNodes.push(stopWind);
+
+      const creakTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playCreakingWood(dest);
+      }, 4800);
+      activeNodes.push(() => clearInterval(creakTimer));
+
+      const owlTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playOrganicOwl(dest);
+      }, 5800);
+      activeNodes.push(() => clearInterval(owlTimer));
+    }
+
+    function startWaterSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.25, 140, 380);
+      activeNodes.push(stopWind);
+
+      const lapTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playLappingWave(dest);
+      }, 2200);
+      activeNodes.push(() => clearInterval(lapTimer));
+
+      const bubbleTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playOrganicWaterBubble(dest);
+      }, 1400);
+      activeNodes.push(() => clearInterval(bubbleTimer));
+    }
+
+    function startGibbetSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.2, 100, 300);
+      activeNodes.push(stopWind);
+
+      const chainDragTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playDraggingChainsOnFloor(dest);
+      }, 3100);
+      activeNodes.push(() => clearInterval(chainDragTimer));
+
+      const pocongTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playPocongThud(dest);
+      }, 1850);
+      activeNodes.push(() => clearInterval(pocongTimer));
+    }
+
+    function startPontianakSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.28, 280, 850);
+      activeNodes.push(stopWind);
+
+      const weepingTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playWeepingVoice(dest);
+      }, 5400);
+      activeNodes.push(() => clearInterval(weepingTimer));
+
+      const mengilaiTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playMengilaiFullSequence(dest);
+      }, 6400);
+      activeNodes.push(() => clearInterval(mengilaiTimer));
+    }
+
+    function startPenanggalanSynth() {
+      const dest = pannerNode || masterGain;
+      const stopWind = startOrganicWind(dest, 0.45, 180, 1000);
+      activeNodes.push(stopWind);
+
+      const entrailsTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playPenanggalanEntrailsSquelch(dest);
+      }, 1900);
+      activeNodes.push(() => clearInterval(entrailsTimer));
+
+      const flutterTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playPenanggalanWetFlap(dest);
+      }, 2900);
+      activeNodes.push(() => clearInterval(flutterTimer));
+
+      const hissTimer = setInterval(() => {
+        if (!isPlaying) return;
+        playPenanggalanHissMoan(dest);
+      }, 5200);
+      activeNodes.push(() => clearInterval(hissTimer));
+    }
+
+    // -------------------------------------------------------------
+    // ACOUSTIC SOUND SYNTHESIS PRIMITIVES
+    // -------------------------------------------------------------
+    function playSpectralGamelanMotif(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const notes = [587.33, 622.25, 739.99, 880.00, 932.33];
+      const selected = [
+        notes[Math.floor(Math.random() * notes.length)],
+        notes[Math.floor(Math.random() * notes.length)],
+        notes[Math.floor(Math.random() * notes.length)]
+      ];
+
+      selected.forEach((pitch, idx) => {
+        const strikeTime = now + (idx * 0.45);
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const bandpass = audioCtx.createBiquadFilter();
+
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(pitch, strikeTime);
+
+        osc2.type = "triangle";
+        osc2.frequency.setValueAtTime(pitch * 2.76, strikeTime);
+
+        bandpass.type = "bandpass";
+        bandpass.frequency.setValueAtTime(pitch * 1.5, strikeTime);
+        bandpass.Q.setValueAtTime(3.5, strikeTime);
+
+        gain.gain.setValueAtTime(0.001, strikeTime);
+        gain.gain.linearRampToValueAtTime(0.18, strikeTime + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, strikeTime + 2.4);
+
+        osc1.connect(gain);
+        osc2.connect(bandpass);
+        bandpass.connect(gain);
+        gain.connect(dest);
+
+        osc1.start(strikeTime);
+        osc2.start(strikeTime);
+        osc1.stop(strikeTime + 2.5);
+        osc2.stop(strikeTime + 2.5);
+      });
+    }
+
+    function playDraggingChainsOnFloor(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const scrapeDuration = 0.75;
+
+      const bufferSize = audioCtx.sampleRate * scrapeDuration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(Math.sin((i / bufferSize) * Math.PI), 0.5);
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const stoneFilter = audioCtx.createBiquadFilter();
+      stoneFilter.type = "bandpass";
+      stoneFilter.frequency.setValueAtTime(1400, now);
+      stoneFilter.frequency.linearRampToValueAtTime(750, now + scrapeDuration);
+      stoneFilter.Q.setValueAtTime(2.8, now);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.001, now);
+      noiseGain.gain.linearRampToValueAtTime(0.12, now + 0.1);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + scrapeDuration);
+
+      noise.connect(stoneFilter);
+      stoneFilter.connect(noiseGain);
+      noiseGain.connect(dest);
+      noise.start(now);
+    }
+
+    function playPenanggalanEntrailsSquelch(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      for (let i = 0; i < 3; i++) {
+        const t = now + (i * 0.28);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        osc.type = "sine";
+        const baseF = 260 + Math.random() * 120;
+        osc.frequency.setValueAtTime(baseF, t);
+        osc.frequency.exponentialRampToValueAtTime(baseF * 0.45, t + 0.2);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(600, t);
+        filter.frequency.linearRampToValueAtTime(220, t + 0.2);
+
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.18, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(dest);
+
+        osc.start(t);
+        osc.stop(t + 0.24);
+      }
+    }
+
+    function playPenanggalanWetFlap(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(85, now);
+      osc.frequency.linearRampToValueAtTime(40, now + 0.35);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(320, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+
+    function playPenanggalanHissMoan(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 1.5, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin((i / buffer.length) * Math.PI);
+      }
+      const hiss = audioCtx.createBufferSource();
+      hiss.buffer = buffer;
+
+      const hissFilter = audioCtx.createBiquadFilter();
+      hissFilter.type = "bandpass";
+      hissFilter.frequency.setValueAtTime(2400, now);
+      hissFilter.frequency.linearRampToValueAtTime(1600, now + 1.2);
+      hissFilter.Q.setValueAtTime(5.0, now);
+
+      const hissGain = audioCtx.createGain();
+      hissGain.gain.setValueAtTime(0.001, now);
+      hissGain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+      hissGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+      hiss.connect(hissFilter);
+      hissFilter.connect(hissGain);
+      hissGain.connect(dest);
+      hiss.start(now);
+    }
+
+    function startOrganicWind(dest, maxGain, minFreq, maxFreq) {
+      if (!audioCtx) return () => {};
+      const bufferSize = audioCtx.sampleRate * 3;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        data[i] = (b0 + b1 + b2) * 0.8;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(minFreq, audioCtx.currentTime);
+      filter.Q.setValueAtTime(2.2, audioCtx.currentTime);
+
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.setValueAtTime(0.18, audioCtx.currentTime);
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.setValueAtTime((maxFreq - minFreq) * 0.7, audioCtx.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(maxGain, audioCtx.currentTime);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      noise.start();
+      lfo.start();
+
+      return () => {
+        try {
+          noise.stop();
+          lfo.stop();
+          noise.disconnect();
+          filter.disconnect();
+          gain.disconnect();
+        } catch(e) {}
+      };
+    }
+
+    function playOrganicWolfHowl(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const formant = audioCtx.createBiquadFilter();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(460, now + 1.2);
+      osc.frequency.exponentialRampToValueAtTime(370, now + 2.5);
+      osc.frequency.exponentialRampToValueAtTime(160, now + 4.8);
+
+      formant.type = "bandpass";
+      formant.frequency.setValueAtTime(450, now);
+      formant.frequency.linearRampToValueAtTime(800, now + 1.2);
+      formant.frequency.linearRampToValueAtTime(400, now + 4.8);
+      formant.Q.setValueAtTime(4.5, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 1.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 4.9);
+
+      osc.connect(formant);
+      formant.connect(gain);
+      gain.connect(dest);
+
+      osc.start(now);
+      osc.stop(now + 5.0);
+    }
+
+    function playMengilaiFullSequence(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const burstCount = 9;
+      const baseFreq = 880 + Math.random() * 120;
+
+      for (let i = 0; i < burstCount; i++) {
+        const burstTime = now + (i * 0.14);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const formant = audioCtx.createBiquadFilter();
+
+        osc.type = "sawtooth";
+        const f = baseFreq + Math.sin(i * 0.8) * 90;
+        osc.frequency.setValueAtTime(f, burstTime);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.82, burstTime + 0.12);
+
+        formant.type = "bandpass";
+        formant.frequency.setValueAtTime(1600 + Math.random() * 400, burstTime);
+        formant.Q.setValueAtTime(6.0, burstTime);
+
+        gain.gain.setValueAtTime(0.001, burstTime);
+        gain.gain.linearRampToValueAtTime(0.22, burstTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, burstTime + 0.13);
+
+        osc.connect(formant);
+        formant.connect(gain);
+        gain.connect(dest);
+
+        osc.start(burstTime);
+        osc.stop(burstTime + 0.14);
+      }
+    }
+
+    function playWeepingVoice(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.linearRampToValueAtTime(390, now + 0.8);
+      osc.frequency.linearRampToValueAtTime(320, now + 1.8);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(950, now);
+      filter.Q.setValueAtTime(4, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.9);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(now);
+      osc.stop(now + 2.0);
+    }
+
+    function playCreakingWood(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(65, now);
+      osc.frequency.linearRampToValueAtTime(95, now + 0.6);
+      osc.frequency.linearRampToValueAtTime(50, now + 1.1);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(320, now);
+      filter.Q.setValueAtTime(5, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+
+      osc.start(now);
+      osc.stop(now + 1.3);
+    }
+
+    function playOrganicOwl(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(620, now);
+      osc.frequency.linearRampToValueAtTime(840, now + 0.14);
+      osc.frequency.linearRampToValueAtTime(510, now + 0.45);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
+
+      osc.connect(gain);
+      gain.connect(dest);
+      osc.start(now);
+      osc.stop(now + 0.48);
+    }
+
+    function playLappingWave(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.9, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin(i / data.length * Math.PI);
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(260, now);
+      filter.frequency.linearRampToValueAtTime(420, now + 0.4);
+      filter.frequency.linearRampToValueAtTime(180, now + 0.9);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.35);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(dest);
+      noise.start(now);
+    }
+
+    function playOrganicWaterBubble(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      const startF = 320 + Math.random() * 200;
+      osc.frequency.setValueAtTime(startF, now);
+      osc.frequency.exponentialRampToValueAtTime(startF * 1.9, now + 0.11);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+
+      osc.connect(gain);
+      gain.connect(dest);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    }
+
+    function playPocongThud(dest) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(95, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.22);
+
+      gain.gain.setValueAtTime(0.38, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc.connect(gain);
+      gain.connect(dest);
+      osc.start(now);
+      osc.stop(now + 0.24);
+    }
+
+    // -------------------------------------------------------------
+    // 3. PLAYBACK ORCHESTRATION & BINAURAL ROTATION
+    // -------------------------------------------------------------
+    function toggleAudio() {
+      initAudioContext();
+
+      if (isPlaying) {
+        stopAllAudio();
+        isPlaying = false;
+        updatePlayButtonUI(false);
+      } else {
+        startActiveStationSound();
+        isPlaying = true;
+        updatePlayButtonUI(true);
+      }
+    }
+
+    function startActiveStationSound() {
+      stopAllAudio();
+      initAudioContext();
+      const stopData = GHOST_STOPS[currentStopIndex];
+
+      // 1. Play HTML5 Audio Track
+      playCurrentTrack(stopData);
+
+      // 2. Play Procedural Atmospheric Engine
+      switch(stopData.synthType) {
+        case "crossroads": startCrossroadsSynth(); break;
+        case "courtroom": startCourtroomSynth(); break;
+        case "water": startWaterSynth(); break;
+        case "gibbet": startGibbetSynth(); break;
+        case "pontianak": startPontianakSynth(); break;
+        case "penanggalan": startPenanggalanSynth(); break;
+      }
+
+      // 3. Activate Slow 3D Stereo Orbit
+      if (isBinauralEnabled && pannerNode) {
+        pannerInterval = setInterval(() => {
+          pannerAngle += 0.04;
+          const panValue = Math.sin(pannerAngle) * 0.85;
+          pannerNode.pan.setValueAtTime(panValue, audioCtx.currentTime);
+        }, 120);
+      }
+
+      // 4. Schedule the Spoken Narration to follow the ambient intro
+      scheduleSpokenScript(6500);
+
+      // Start elapsed timer
+      playbackSeconds = 0;
+      progressTimer = setInterval(() => {
+        playbackSeconds++;
+        updateProgressBarUI(playbackSeconds);
+      }, 1000);
+    }
+
+    function updateProgressBarUI(seconds) {
+      const maxSeconds = 150;
+      const percent = Math.min((seconds % maxSeconds) / maxSeconds * 100, 100);
+      document.getElementById('progressBar').style.width = `${percent}%`;
+
+      const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      document.getElementById('timeElapsed').innerText = `${mins}:${secs}`;
+    }
+
+    function seekAudio(event) {
+      const container = document.getElementById('progressBarContainer');
+      const rect = container.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      playbackSeconds = Math.floor(ratio * 150);
+      updateProgressBarUI(playbackSeconds);
+      if (html5Audio && html5Audio.duration) {
+        html5Audio.currentTime = (html5Audio.duration * ratio);
+      }
+    }
+
+    function setAppVolume(val) {
+      masterVolume = parseFloat(val);
+      if (masterGain && audioCtx) {
+        const targetVol = isSpeechActive ? masterVolume * 0.35 : masterVolume;
+        masterGain.gain.setValueAtTime(targetVol, audioCtx.currentTime);
+      }
+      if (html5Audio) {
+        html5Audio.volume = isSpeechActive ? masterVolume * 0.35 : masterVolume;
+      }
+    }
+
+    function toggleBinauralMod() {
+      isBinauralEnabled = !isBinauralEnabled;
+      const btn = document.getElementById('binauralBtn');
+      const txt = document.getElementById('binauralStatusText');
+      if (isBinauralEnabled) {
+        txt.innerText = "3D Orbit: ACTIVE";
+        btn.classList.add('border-red-700/60', 'bg-[#2b1010]', 'text-red-200');
+        btn.classList.remove('border-[#4a241b]', 'bg-[#1c0f0d]', 'text-stone-500');
+        if (pannerNode && audioCtx && !pannerInterval && isPlaying) {
+          pannerInterval = setInterval(() => {
+            pannerAngle += 0.05;
+            pannerNode.pan.setValueAtTime(Math.sin(pannerAngle) * 0.85, audioCtx.currentTime);
+          }, 100);
+        }
+      } else {
+        txt.innerText = "3D Orbit: OFF";
+        btn.classList.remove('border-red-700/60', 'bg-[#2b1010]', 'text-red-200');
+        btn.classList.add('border-[#4a241b]', 'bg-[#1c0f0d]', 'text-stone-500');
+        if (pannerInterval) clearInterval(pannerInterval);
+        if (pannerNode && audioCtx) {
+          pannerNode.pan.setValueAtTime(0, audioCtx.currentTime);
+        }
+      }
+    }
+
+    function updatePlayButtonUI(playing) {
+      const label = document.getElementById('playBtnLabel');
+      const icon = document.getElementById('playIcon');
+      const btn = document.getElementById('masterPlayBtn');
+
+      if (playing) {
+        label.innerText = "PAUSE AUDIO & NARRATION";
+        icon.setAttribute('data-lucide', 'pause');
+        btn.classList.add('glow-blood');
+      } else {
+        label.innerText = "SUMMON AMBIENCE & NARRATION";
+        icon.setAttribute('data-lucide', 'play');
+        btn.classList.remove('glow-blood');
+      }
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // 4. UI STATIONS & NAVIGATION LOGIC
+    // -------------------------------------------------------------
+    function renderStationDetails() {
+      const stop = GHOST_STOPS[currentStopIndex];
+      const t = UI_TRANSLATIONS[currentLanguage];
+
+      const numberLabel = `${t.stopPrefix} ${stop.number} ${t.ofLabel} 5`;
+      document.getElementById('stationNumberTag').innerText = numberLabel;
+      document.getElementById('stationLocationTag').innerText = stop.location;
+      
+      const currentTitle = stop.title[currentLanguage] || stop.title.en;
+      const currentSubtitle = stop.subtitle[currentLanguage] || stop.subtitle.en;
+      document.getElementById('stopTitle').innerText = currentTitle;
+      document.getElementById('stopSubtitle').innerHTML = `<i data-lucide="${stop.icon || 'flame'}" class="w-3.5 h-3.5 text-red-500"></i> ${currentSubtitle}`;
+
+      document.getElementById('swissLoreText').innerText = stop.swissLore[currentLanguage] || stop.swissLore.en;
+      document.getElementById('malayLoreText').innerText = stop.malayLore[currentLanguage] || stop.malayLore.en;
+      document.getElementById('spokenScriptText').innerText = `"${stop.script[currentLanguage] || stop.script.en}"`;
+
+      updateSvgMapActivePin(stop);
+
+      window.location.hash = stop.slug;
+
+      renderStationsList();
+      renderDockPills();
+      lucide.createIcons();
+
+      if (isPlaying) {
+        startActiveStationSound();
+      } else {
+        updateNarrationLiveBadge(false, t.pressSummonNotice);
+      }
+    }
+
+    function renderStationsList() {
+      const container = document.getElementById('stationsListContainer');
+      const t = UI_TRANSLATIONS[currentLanguage];
+      container.innerHTML = GHOST_STOPS.map((st, i) => {
+        const isSelected = i === currentStopIndex;
+        const titleText = st.title[currentLanguage] || st.title.en;
+        return `
+          <div onclick="selectStop(${i})" class="cursor-pointer p-3 rounded-xl border transition-all flex items-center justify-between ${isSelected ? 'bg-[#dfc19c] border-red-800 shadow-[0_0_18px_rgba(185,28,28,0.35)]' : 'bg-[#e7d2b7]/80 border-[#946443] hover:bg-[#f0dfc8]'}">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-lg ${isSelected ? 'bg-gradient-to-br from-red-700 to-red-950 text-white font-bold shadow-md' : 'bg-[#d2b38f] text-[#3d2012] border border-[#8e5c3c] font-bold'} flex items-center justify-center text-xs font-mono">
+                ${i}
+              </span>
+              <div>
+                <h4 class="font-cinzel text-xs font-black ${isSelected ? 'text-[#1c0c05]' : 'text-[#2b170e]'} flex items-center gap-1.5">
+                  <i data-lucide="${st.icon}" class="w-3.5 h-3.5 ${isSelected ? 'text-red-700' : 'text-[#6e3e26]'}"></i>
+                  ${titleText}
+                </h4>
+                <p class="text-[11px] text-[#4d2a19] font-medium">${st.location}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${isSelected && isPlaying ? '<span class="flex h-2 w-2 rounded-full bg-red-600 animate-ping"></span>' : ''}
+              <i data-lucide="chevron-right" class="w-4 h-4 ${isSelected ? 'text-red-800' : 'text-[#855335]'}"></i>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDockPills() {
+      const row = document.getElementById('dockStationsRow');
+      row.innerHTML = GHOST_STOPS.map((st, i) => {
+        const active = i === currentStopIndex;
+        const titleText = st.title[currentLanguage] || st.title.en;
+        return `
+          <button onclick="selectStop(${i})" title="${titleText}" class="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${active ? 'bg-gradient-to-b from-red-700 via-red-800 to-red-950 text-white shadow-[0_0_16px_rgba(220,38,38,0.7)] scale-105 border border-red-500/80' : 'bg-[#deb98e] border border-[#8b5636] text-[#3d2012] hover:bg-[#ebd0b0]'}">
+            <span class="font-mono text-[11px] font-black leading-none mb-1">${i}</span>
+            <i data-lucide="${st.icon}" class="w-4 h-4 ${active ? 'text-white' : 'text-[#4d2817]'}"></i>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectStop(index) {
+      if (index < 0 || index >= GHOST_STOPS.length) return;
+      currentStopIndex = index;
+      renderStationDetails();
+    }
+
+    function navigateStop(delta) {
+      let newIdx = currentStopIndex + delta;
+      if (newIdx < 0) newIdx = GHOST_STOPS.length - 1;
+      if (newIdx >= GHOST_STOPS.length) newIdx = 0;
+      selectStop(newIdx);
+    }
+
+    function switchTab(tab) {
+      const loreContent = document.getElementById('tabContentLore');
+      const scriptContent = document.getElementById('tabContentScript');
+      const tabBtnLore = document.getElementById('tabBtnLore');
+      const tabBtnScript = document.getElementById('tabBtnScript');
+
+      if (tab === 'lore') {
+        loreContent.classList.remove('hidden');
+        scriptContent.classList.add('hidden');
+        tabBtnLore.className = 'flex-1 py-3 text-center border-b-2 border-red-800 text-red-950 bg-[#e7d1b6]/80 font-black';
+        tabBtnScript.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-[#4e2d1d] hover:text-[#1f100a]';
+      } else {
+        loreContent.classList.add('hidden');
+        scriptContent.classList.remove('hidden');
+        tabBtnScript.className = 'flex-1 py-3 text-center border-b-2 border-red-800 text-red-950 bg-[#e7d1b6]/80 font-black';
+        tabBtnLore.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-[#4e2d1d] hover:text-[#1f100a]';
+      }
+    }
+
+    function updateSvgMapActivePin(stop) {
+      const ping = document.getElementById('mapActivePing');
+      if (ping) {
+        ping.setAttribute('cx', stop.mapX);
+        ping.setAttribute('cy', stop.mapY);
+      }
+      const caption = document.getElementById('mapSelectedStopCaption');
+      if (caption) {
+        caption.innerText = `Target: Stop ${stop.number} (${stop.location})`;
+      }
+
+      // Update map modal details
+      const modalTag = document.getElementById('modalMapStopTag');
+      const modalTitle = document.getElementById('modalMapStopTitle');
+      const modalLoc = document.getElementById('modalMapStopLocation');
+      if (modalTag) modalTag.innerText = `STOP ${stop.number} OF 5`;
+      if (modalTitle) modalTitle.innerText = stop.title[currentLanguage] || stop.title.en;
+      if (modalLoc) modalLoc.innerHTML = `<i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-700"></i> ${stop.location}, Rolle`;
+    }
+
+    function toggleMapModal() {
+      const modal = document.getElementById('trailMapModal');
+      if (modal) {
+        modal.classList.toggle('hidden');
+      }
+    }
+
+    function openStopInGoogleMaps() {
+      const stop = GHOST_STOPS[currentStopIndex];
+      const encodedDest = encodeURIComponent(stop.placeQuery || `${stop.lat},${stop.lng}`);
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodedDest}&travelmode=walking`;
+      window.open(url, '_blank');
+    }
+
+    function openFullRouteInGoogleMaps() {
+      const origin = encodeURIComponent("Chemin de Plein-Air, 1180 Rolle, Switzerland");
+      const destination = encodeURIComponent("Place de la Harpe, 1180 Rolle, Switzerland");
+      const waypoints = [
+        "Place des Tilleuls, 1180 Rolle, Switzerland",
+        "Quai de la Harpe, 1180 Rolle, Switzerland",
+        "Château de Rolle, Place des Tilleuls, 1180 Rolle, Switzerland",
+        "Promenade du Lac, 1180 Rolle, Switzerland"
+      ].map(encodeURIComponent).join('|');
+
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=walking`;
+      window.open(url, '_blank');
+    }
+
+    function updatePlayButtonUI(playing) {
+      const label = document.getElementById('playBtnLabel');
+      const icon = document.getElementById('playIcon');
+      const btn = document.getElementById('masterPlayBtn');
+      const t = UI_TRANSLATIONS[currentLanguage];
+
+      if (playing) {
+        label.innerText = t.playPause;
+        icon.setAttribute('data-lucide', 'pause');
+        btn.classList.add('glow-blood');
+      } else {
+        label.innerText = t.playSummon;
+        icon.setAttribute('data-lucide', 'play');
+        btn.classList.remove('glow-blood');
+      }
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // 5. RED LANTERN FLASHLIGHT
+    // -------------------------------------------------------------
+    let isRedLanternActive = false;
+    function toggleRedLantern() {
+      isRedLanternActive = !isRedLanternActive;
+      const overlay = document.getElementById('redLanternMode');
+      if (isRedLanternActive) {
+        overlay.classList.remove('pointer-events-none', 'opacity-0');
+        overlay.classList.add('opacity-100');
+      } else {
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('pointer-events-none', 'opacity-0');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. QR CODE GENERATOR & MODAL
+    // -------------------------------------------------------------
+    let qrCodeInstance = null;
+
+    function openQRModal() {
+      const stop = GHOST_STOPS[currentStopIndex];
+      const targetUrl = window.location.origin + window.location.pathname + "#" + stop.slug;
+      document.getElementById('qrTargetUrlText').innerText = targetUrl;
+
+      const qrcodeBox = document.getElementById('qrcodeCanvasBox');
+      qrcodeBox.innerHTML = "";
+      qrCodeInstance = new QRCode(qrcodeBox, {
+        text: targetUrl,
+        width: 170,
+        height: 170,
+        colorDark : "#0a0a0a",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      document.getElementById('qrModal').classList.remove('hidden');
+    }
+
+    function closeQRModal() {
+      document.getElementById('qrModal').classList.add('hidden');
+    }
+
+    function copyQRUrl() {
+      const text = document.getElementById('qrTargetUrlText').innerText;
+      const tempInput = document.createElement("input");
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+
+      const btn = event.target;
+      const orig = btn.innerText;
+      btn.innerText = "COPIED!";
+      setTimeout(() => btn.innerText = orig, 1500);
+    }
+
+    // -------------------------------------------------------------
+    // 7. CUSTOM MP3 OVERRIDE LOGIC
+    // -------------------------------------------------------------
+    function toggleAudioSourceModal() {
+      const stop = GHOST_STOPS[currentStopIndex];
+      document.getElementById('modalStationTitle').innerText = `${stop.numberLabel}: ${stop.title}`;
+      document.getElementById('modalPresetFileName').innerText = stop.activeAudioSrc || "None (Using Procedural Engine)";
+      document.getElementById('audioSourceModal').classList.remove('hidden');
+    }
+
+    function closeAudioSourceModal() {
+      document.getElementById('audioSourceModal').classList.add('hidden');
+    }
+
+    function handleCustomAudioFile(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const fileUrl = URL.createObjectURL(file);
+        GHOST_STOPS[currentStopIndex].activeAudioSrc = fileUrl;
+        closeAudioSourceModal();
+        renderStationDetails();
+        if (isPlaying) startActiveStationSound();
+      }
+    }
+
+    function applyCustomAudioUrl() {
+      const url = document.getElementById('customAudioUrlInput').value.trim();
+      if (url) {
+        GHOST_STOPS[currentStopIndex].activeAudioSrc = url;
+        closeAudioSourceModal();
+        renderStationDetails();
+        if (isPlaying) startActiveStationSound();
+      }
+    }
+
+    function reloadDefaultAudio() {
+      const stop = GHOST_STOPS[currentStopIndex];
+      stop.activeAudioSrc = stop.defaultAudioFile;
+      closeAudioSourceModal();
+      renderStationDetails();
+      if (isPlaying) startActiveStationSound();
+    }
+
+    // -------------------------------------------------------------
+    // 8. AUDIO VISUALIZER CANVAS (REAL-TIME OSCILLOSCOPE)
+    // -------------------------------------------------------------
+    function setupVisualizer() {
+      const canvas = document.getElementById('visualizerCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = 64;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        ctx.fillStyle = "rgba(10, 6, 5, 0.45)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (!isPlaying || !analyserNode) {
+          ctx.beginPath();
+          ctx.strokeStyle = "rgba(185, 28, 28, 0.25)";
+          ctx.lineWidth = 1.5;
+          const time = Date.now() * 0.002;
+          for (let x = 0; x < canvas.width; x += 4) {
+            const y = canvas.height / 2 + Math.sin(x * 0.03 + time) * 3;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          return;
+        }
+
+        const bufferLength = analyserNode.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyserNode.getByteTimeDomainData(dataArray);
+
+        ctx.lineWidth = 2.5;
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, "#7f1d1d");
+        gradient.addColorStop(0.35, "#dc2626");
+        gradient.addColorStop(0.7, "#f43f5e");
+        gradient.addColorStop(1, "#b91c1c");
+        ctx.strokeStyle = gradient;
+
+        ctx.beginPath();
+        const sliceWidth = canvas.width * 1.0 / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = v * (canvas.height / 2);
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          x += sliceWidth;
+        }
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+      }
+      draw();
+    }
+
+    // -------------------------------------------------------------
+    // 9. APP INITIALIZATION & HASH LISTENER
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentHash = window.location.hash.replace('#', '');
+      if (currentHash) {
+        const foundIndex = GHOST_STOPS.findIndex(s => s.slug === currentHash);
+        if (foundIndex !== -1) {
+          currentStopIndex = foundIndex;
+        }
+      }
+
+      window.addEventListener('hashchange', () => {
+        const hash = window.location.hash.replace('#', '');
+        const found = GHOST_STOPS.findIndex(s => s.slug === hash);
+        if (found !== -1 && found !== currentStopIndex) {
+          selectStop(found);
+        }
+      });
+
+      renderStationDetails();
+      setupVisualizer();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
